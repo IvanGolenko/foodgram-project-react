@@ -8,7 +8,7 @@ from api.views import (
     TagViewSet,
     ShoppingCartViewSet,
     CreateUserView,
-    DownloadCart,
+    DownloadCartView,
     FavoriteViewSet,
     FollowViewSet,
 )
@@ -18,15 +18,15 @@ app_name = 'api'
 
 router_v1 = DefaultRouter()
 router_v1.register('users', CreateUserView, basename='users')
-router_v1.register(r'tags', TagViewSet, basename='tags')
-router_v1.register(r'recipes', RecipeViewSet, basename='recipes')
-router_v1.register(r'ingredients', IngredientViewSet, basename='ingredients')
+router_v1.register('tags', TagViewSet, basename='tags')
+router_v1.register('recipes', RecipeViewSet, basename='recipes')
+router_v1.register('ingredients', IngredientViewSet, basename='ingredients')
 
 urlpatterns = [
     path('users/subscriptions/',
          FollowViewSet.as_view({'get': 'list'}), name='subscriptions'),
     path('recipes/download_shopping_cart/',
-         DownloadCart.as_view(), name='dowload_shopping_cart'),
+         DownloadCartView.as_view(), name='dowload_shopping_cart'),
     path('users/<users_id>/subscribe/',
          FollowViewSet.as_view({'post': 'create',
                                 'delete': 'delete'}), name='subscribe'),

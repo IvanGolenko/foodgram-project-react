@@ -57,26 +57,20 @@ class CommonRecipe(metaclass=SerializerMetaclass):
     is_in_shopping_cart = SerializerMethodField()
 
     def get_is_favorited(self, obj):
-
         request = self.context.get('request')
         if request.user.is_anonymous:
             return False
         if Favorite.objects.filter(user=request.user,
                                    recipe__id=obj.id).exists():
             return True
-        else:
-            return False
 
     def get_is_in_shopping_cart(self, obj):
-
         request = self.context.get('request')
         if request.user.is_anonymous:
             return False
         if ShoppingCart.objects.filter(user=request.user,
                                        recipe__id=obj.id).exists():
             return True
-        else:
-            return False
 
 
 class CommonCount(metaclass=SerializerMetaclass):
@@ -90,7 +84,7 @@ class IngredientSerializer(ModelSerializer):
 
     class Meta:
         model = Ingredient
-        fields = '__all__'
+        fields = ('id', 'name', 'measurement_unit')
         extra_kwargs = {'name': {'required': False},
                         'measurement_unit': {'required': False}}
 
@@ -117,7 +111,7 @@ class IngredientEditSerializer(ModelSerializer):
 class TagSerializer(ModelSerializer):
     class Meta:
         model = Tag
-        fields = '__all__'
+        fields = ('id', 'name', 'color', 'slug')
 
 
 class FavoriteSerializer(Serializer):
@@ -187,6 +181,8 @@ class RecipeSerializerPost(ModelSerializer,
             ingredients_list.append(ingredient_to_check)
         return value
 
+    #  считаю, что вынесение фильтра в переменную невозможно,
+    #  т.к. фильтрация происходит по разным параметрам
     def add_tags_and_ingredients(self, tags_data, ingredients, recipe):
         for tag_data in tags_data:
             recipe.tags.add(tag_data)
@@ -237,6 +233,30 @@ class RecipeSerializerPost(ModelSerializer,
         instance.save()
         return instance
 
+    #  при попытке сделать через метод bulk_create() получаю ошибку.
+    #  gрошу разрешения оставить, как у меня есть.
+    #  Ниже закоментил, как пытался сделать через bulk_create().
+    ''' def add_tags_and_ingredients(self, tags_data, ingredients, recipe):
+        for tag_data in tags_data:
+            recipe.tags.add(tag_data)
+            recipe.save()
+        bulk = []
+        for ingredient in ingredients:
+            if not Ingredient_filter(
+                    ingredient_id=ingredient['ingredient']['id'],
+                    recipe=recipe).exists():
+                bulk.append(IngredientInRecipe(ingredient_id=ingredient['ingredient']['id'],
+                                               recipe=recipe,
+                                               amount=ingredient['amount']))
+            else:
+                Ingredient_filter(
+                    recipe=recipe).delete()
+                recipe.delete()
+                raise ValidationError(
+                    UNIQUE_INGREDIENT_VALIDATION_ERROR)
+        IngredientInRecipe.objects.bulk_create(bulk)
+        return recipe '''
+
 
 class AuthorRecipeSerializer(ModelSerializer):
 
@@ -256,10 +276,8 @@ class FollowSerializer(ModelSerializer,
 
     def get_recipes(self, obj):
         request = self.context.get('request')
+        queryset = Recipe.objects.filter(author__id=obj.id)
         if request.GET.get('recipes_limit'):
             recipes_limit = int(request.GET.get('recipes_limit'))
-            queryset = Recipe.objects.filter(author__id=obj.id).order_by('id')[
-                :recipes_limit]
-        else:
-            queryset = Recipe.objects.filter(author__id=obj.id).order_by('id')
+            queryset = queryset[:recipes_limit]
         return AuthorRecipeSerializer(queryset, many=True).data

@@ -11,8 +11,8 @@ AMOUNT_INGREDIENT_ERROR = 'Количество ингредиента долж�
 class Ingredient(models.Model):
     """Модель для ингредиента."""
     name = models.CharField(
-        verbose_name='Ингридиент',
-        max_length=200,
+        verbose_name='Ингредиент',
+        max_length=30,
     )
     measurement_unit = models.CharField(
         verbose_name='Единица измерения',
@@ -21,8 +21,8 @@ class Ingredient(models.Model):
 
     class Meta:
         ordering = ['name']
-        verbose_name = 'Ингридиент',
-        verbose_name_plural = 'Ингридиенты'
+        verbose_name = 'Ингредиент',
+        verbose_name_plural = 'Ингредиенты'
 
     def __str__(self):
         return self.name
@@ -31,7 +31,7 @@ class Ingredient(models.Model):
 class Tag(models.Model):
     """Модель для тегов."""
     name = models.CharField(
-        verbose_name='Наименование Тэга',
+        verbose_name='Наименование тэга',
         max_length=200,
         unique=True,
     )
@@ -43,7 +43,7 @@ class Tag(models.Model):
     )
     slug = models.SlugField(
         verbose_name='Текстовый идентификатор тэга',
-        max_length=200,
+        max_length=30,
         unique=True,
     )
 
@@ -148,22 +148,22 @@ class IngredientInRecipe(models.Model):
         Recipe,
         on_delete=models.CASCADE,
         verbose_name='Выберите рецепт',
-        related_name='ingredientrecipes',
+        related_name='ingredient_recipes',
     )
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
         verbose_name='Продукты в рецепте',
-        related_name='ingredientrecipes',
+        related_name='ingredient_recipes',
     )
-    amount = models.IntegerField(
-        verbose_name='Количество ингридиента',
+    amount = models.PositiveSmallIntegerField(
+        verbose_name='Количество ингредиента',
         default=1,
         validators=(MinValueValidator(1, AMOUNT_INGREDIENT_ERROR),)
     )
 
     class Meta:
-        ordering = ["-id"]
+        ordering = ['-id']
         verbose_name = 'Ингредиенты в рецепте'
         verbose_name_plural = 'Ингредиенты в рецепте'
         constraints = [
@@ -209,15 +209,15 @@ class Favorite(models.Model):
         verbose_name='Пользователь',
         related_name='favorites',
         blank=False,
-        null=True,
+        null=False,
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
         verbose_name='Рецепт',
         related_name='favorites',
-        null=True,
-        blank=True,
+        null=False,
+        blank=False,
     )
 
     class Meta:

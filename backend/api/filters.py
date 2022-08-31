@@ -8,7 +8,7 @@ class RecipeFilters(filters.FilterSet):
         field_name='tags__slug',
         queryset=Tag.objects.all(),
         label='Tags',
-        to_field_name="slug",
+        to_field_name='slug',
     )
 
     is_favorited = filters.BooleanFilter(
