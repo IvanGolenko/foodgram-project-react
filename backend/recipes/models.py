@@ -32,7 +32,7 @@ class Tag(models.Model):
     """Модель для тегов."""
     name = models.CharField(
         verbose_name='Наименование тэга',
-        max_length=200,
+        max_length=30,
         unique=True,
     )
     color = ColorField(
@@ -60,7 +60,7 @@ class Recipe(models.Model):
     """Модель для рецептов."""
     name = models.CharField(
         verbose_name='Название блюда',
-        max_length=200,
+        max_length=50,
         unique=True
     )
     author = models.ForeignKey(
@@ -87,7 +87,7 @@ class Recipe(models.Model):
         verbose_name='Время приготовления',
         help_text='Введите время приготовления в минутах',
         default=0,
-        validators=(MinValueValidator(1, COOKING_TIME_ERROR),),
+        validators=(MinValueValidator(0.5, COOKING_TIME_ERROR),),
     )
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
@@ -158,8 +158,8 @@ class IngredientInRecipe(models.Model):
     )
     amount = models.PositiveSmallIntegerField(
         verbose_name='Количество ингредиента',
-        default=1,
-        validators=(MinValueValidator(1, AMOUNT_INGREDIENT_ERROR),)
+        default=0.5,
+        validators=(MinValueValidator(0.5, AMOUNT_INGREDIENT_ERROR),)
     )
 
     class Meta:

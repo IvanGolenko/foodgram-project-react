@@ -14,8 +14,8 @@ from rest_framework.serializers import (
 )
 
 from recipes.models import (
-    Ingredient, Tag, TagInRecipe,
-    IngredientInRecipe, Recipe, Favorite, ShoppingCart,
+    Ingredient, Tag, IngredientInRecipe,
+    Recipe, Favorite, ShoppingCart,
 )
 from users.models import User, Follower
 
@@ -114,13 +114,6 @@ class TagSerializer(ModelSerializer):
         fields = ('id', 'name', 'color', 'slug')
 
 
-class FavoriteSerializer(Serializer):
-    id = IntegerField()
-    name = CharField()
-    cooking_time = IntegerField()
-    image = Base64ImageField(max_length=None, use_url=False,)
-
-
 class ShoppingCartSerializer(Serializer):
     id = IntegerField()
     name = CharField()
@@ -139,7 +132,7 @@ class RecipeSerializer(ModelSerializer,
     author = UserDetailSerializer(read_only=True)
     tags = TagSerializer(many=True)
     ingredients = IngredientInRecipeSerializer(
-        source='ingredientrecipes',
+        source='ingredient_recipes',
         many=True)
     is_in_shopping_cart = SerializerMethodField()
 
@@ -157,7 +150,7 @@ class RecipeSerializerPost(ModelSerializer,
         queryset=Tag.objects.all(),
         many=True)
     ingredients = IngredientEditSerializer(
-        source='ingredientrecipes', many=True)
+        source='ingredient_recipes', many=True)
     image = Base64ImageField(max_length=None, use_url=False,)
 
     class Meta:
@@ -181,81 +174,46 @@ class RecipeSerializerPost(ModelSerializer,
             ingredients_list.append(ingredient_to_check)
         return value
 
-    #  считаю, что вынесение фильтра в переменную невозможно,
-    #  т.к. фильтрация происходит по разным параметрам
-    def add_tags_and_ingredients(self, tags_data, ingredients, recipe):
-        for tag_data in tags_data:
-            recipe.tags.add(tag_data)
-            recipe.save()
-        for ingredient in ingredients:
-            if not IngredientInRecipe.objects.filter(
+    def create_ingredients(self, ingredients, recipe):
+        IngredientInRecipe.objects.bulk_create(
+            [
+                IngredientInRecipe(
                     ingredient_id=ingredient['ingredient']['id'],
-                    recipe=recipe).exists():
-                ingredientrecipe = IngredientInRecipe.objects.create(
-                    ingredient_id=ingredient['ingredient']['id'],
-                    recipe=recipe)
-                ingredientrecipe.amount = ingredient['amount']
-                ingredientrecipe.save()
-            else:
-                IngredientInRecipe.objects.filter(
-                    recipe=recipe).delete()
-                recipe.delete()
-                raise ValidationError(
-                    UNIQUE_INGREDIENT_VALIDATION_ERROR)
-        return recipe
+                    recipe=recipe,
+                    amount=ingredient['amount']
+                )
+                for ingredient in ingredients
+            ]
+        )
+
+    def create_tags(self, tags, recipe):
+        recipe.tags.set(tags)
 
     def create(self, validated_data):
-        author = validated_data.get('author')
-        tags_data = validated_data.pop('tags')
-        name = validated_data.get('name')
-        image = validated_data.get('image')
-        text = validated_data.get('text')
-        cooking_time = validated_data.get('cooking_time')
-        ingredients = validated_data.pop('ingredientrecipes')
-        recipe = Recipe.objects.create(
-            author=author,
-            name=name,
-            image=image,
-            text=text,
-            cooking_time=cooking_time,
-        )
-        recipe = self.add_tags_and_ingredients(tags_data, ingredients, recipe)
+        author = self.context.get('request').user
+        tags = validated_data.pop('tags')
+        ingredients = validated_data.pop('ingredient_recipes')
+        recipe = Recipe.objects.create(author=author, **validated_data)
+        self.create_tags(tags, recipe)
+        self.create_ingredients(ingredients, recipe)
+        recipe.save()
         return recipe
 
     def update(self, instance, validated_data):
-        tags_data = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredientrecipes')
-        TagInRecipe.objects.filter(recipe=instance).delete()
-        IngredientInRecipe.objects.filter(recipe=instance).delete()
-        instance = self.add_tags_and_ingredients(
-            tags_data, ingredients, instance)
-        super().update(instance, validated_data)
-        instance.save()
-        return instance
-
-    #  при попытке сделать через метод bulk_create() получаю ошибку.
-    #  gрошу разрешения оставить, как у меня есть.
-    #  Ниже закоментил, как пытался сделать через bulk_create().
-    ''' def add_tags_and_ingredients(self, tags_data, ingredients, recipe):
-        for tag_data in tags_data:
-            recipe.tags.add(tag_data)
-            recipe.save()
-        bulk = []
-        for ingredient in ingredients:
-            if not Ingredient_filter(
-                    ingredient_id=ingredient['ingredient']['id'],
-                    recipe=recipe).exists():
-                bulk.append(IngredientInRecipe(ingredient_id=ingredient['ingredient']['id'],
-                                               recipe=recipe,
-                                               amount=ingredient['amount']))
-            else:
-                Ingredient_filter(
-                    recipe=recipe).delete()
-                recipe.delete()
-                raise ValidationError(
-                    UNIQUE_INGREDIENT_VALIDATION_ERROR)
-        IngredientInRecipe.objects.bulk_create(bulk)
-        return recipe '''
+        instance.name = validated_data.pop('name', instance.name)
+        instance.image = validated_data.pop('image', instance.image)
+        instance.text = validated_data.pop('text', instance.text)
+        instance.cooking_time = validated_data.pop(
+            'cooking_time',
+            instance.cooking_time
+        )
+        instance.ingredients.clear()
+        ingredients = validated_data.pop('ingredient_recipes')
+        self.create_ingredients(ingredients, instance)
+        instance.tags.clear()
+        tags = validated_data.pop('tags')
+        self.create_tags(tags, instance)
+        return super().update(instance, validated_data)
 
 
 class AuthorRecipeSerializer(ModelSerializer):
@@ -263,6 +221,13 @@ class AuthorRecipeSerializer(ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
+
+
+class FavoriteSerializer(Serializer):
+    id = IntegerField()
+    name = CharField()
+    cooking_time = IntegerField()
+    image = Base64ImageField(max_length=None, use_url=False,)
 
 
 class FollowSerializer(ModelSerializer,
