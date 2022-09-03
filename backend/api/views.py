@@ -13,7 +13,6 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from users.models import Follower, User
-
 from api.filters import RecipeFilter
 from api.serializers import (FollowSerializer, IngredientSerializer,
                              RecipeSerializer, RecipeSerializerPost,
