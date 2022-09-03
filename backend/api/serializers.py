@@ -1,21 +1,13 @@
 from djoser.serializers import UserCreateSerializer
 from drf_extra_fields.fields import Base64ImageField
-from recipes.models import (
-    Ingredient, Tag, IngredientInRecipe,
-    Recipe, Favorite, ShoppingCart)
-from rest_framework.serializers import (
-    CharField,
-    ImageField,
-    IntegerField,
-    ModelSerializer,
-    PrimaryKeyRelatedField,
-    ReadOnlyField,
-    Serializer,
-    SerializerMethodField,
-    SerializerMetaclass,
-    ValidationError
-)
-from users.models import User, Follower
+from recipes.models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
+                            ShoppingCart, Tag)
+from rest_framework.serializers import (CharField, ImageField, IntegerField,
+                                        ModelSerializer,
+                                        PrimaryKeyRelatedField, ReadOnlyField,
+                                        Serializer, SerializerMetaclass,
+                                        SerializerMethodField, ValidationError)
+from users.models import Follower, User
 
 UNIQUE_INGREDIENT_VALIDATION_ERROR = 'Ингредиент уже есть в рецепте'
 NOT_INGREDIENT_VALIDATION_ERROR = 'Ингредиента нет в базе'
