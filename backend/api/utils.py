@@ -1,8 +1,8 @@
 from http import HTTPStatus
 
 from django.shortcuts import get_object_or_404
-from recipes.models import Recipe
 from api.serializers import AuthorRecipeSerializer
+from recipes.models import Recipe
 from rest_framework.response import Response
 
 
