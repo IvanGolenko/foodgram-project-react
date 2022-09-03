@@ -1,10 +1,9 @@
 from http import HTTPStatus
 
 from django.shortcuts import get_object_or_404
-from rest_framework.response import Response
-
 from recipes.models import Recipe
 from api.serializers import AuthorRecipeSerializer
+from rest_framework.response import Response
 
 
 def post_delete_favorite_shopping_cart(user, method, model, id):
