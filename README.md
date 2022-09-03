@@ -1,3 +1,5 @@
+![example workflow](https://github.com/IvanGolenko/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)
+
 # praktikum_new_diplom 
 ### README заполнен для сдачи первой части
 
