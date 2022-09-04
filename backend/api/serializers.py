@@ -10,8 +10,8 @@ from users.models import Follower, User
 from recipes.models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
                             ShoppingCart, Tag)
 
-UNIQUE_INGREDIENT_VALIDATION_ERROR = 'Ингредиент уже есть в рецепте'
-NOT_INGREDIENT_VALIDATION_ERROR = 'Ингредиента нет в базе'
+UNIQUE_INGREDIENT_VALIDATION_ERROR = 'Ингредиент уже есть в рецепте.'
+NOT_INGREDIENT_VALIDATION_ERROR = 'Ингредиента нет в базе.'
 
 
 class UserSerializer(metaclass=SerializerMetaclass):
