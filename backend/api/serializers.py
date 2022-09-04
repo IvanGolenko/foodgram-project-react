@@ -105,13 +105,6 @@ class TagSerializer(ModelSerializer):
         fields = ('id', 'name', 'color', 'slug')
 
 
-'''class ShoppingCartSerializer(Serializer):
-    id = IntegerField()
-    name = CharField()
-    cooking_time = IntegerField()
-    image = Base64ImageField(max_length=None, use_url=False,)'''
-
-
 class RecipeSerializer(ModelSerializer,
                        CommonRecipe):
     image = ImageField(
