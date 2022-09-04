@@ -165,7 +165,7 @@ class RecipeSerializerPost(ModelSerializer,
             ingredients_list.append(ingredient_to_check)
         return value
 
-    def create_ingredients(ingredients, recipe):
+    def create_ingredients(self, ingredients, recipe):
         IngredientInRecipe.objects.bulk_create(
             [
                 IngredientInRecipe(
@@ -177,7 +177,7 @@ class RecipeSerializerPost(ModelSerializer,
             ]
         )
 
-    def create_tags(tags, recipe):
+    def create_tags(self, tags, recipe):
         recipe.tags.set(tags)
 
     def create(self, validated_data):
