@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from users.models import Follower, User
-from api.filters import RecipeFilter
+from api.filters import RecipeFilter, IngredientFilter
 from api.utils import post_delete_favorite_shopping_cart, recipe_formation
 from api.serializers import (FollowSerializer, IngredientSerializer,
                              RecipeSerializer, RecipeSerializerPost,
@@ -63,7 +63,7 @@ class IngredientViewSet(ReadOnlyModelViewSet):
     serializer_class = IngredientSerializer
     queryset = Ingredient.objects.all()
     permission_classes = [permissions.AllowAny]
-    filter_backends = (DjangoFilterBackend, )
+    filter_class = IngredientFilter
     pagination_class = None
 
 
