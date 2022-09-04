@@ -13,7 +13,7 @@ services:
     restart: always
     volumes:
       - data_value:/app/data/
-      - static_value:/app/static_backend/
+      - static_value:/app/static/
       - media_value:/app/media/
     depends_on:
       - db
@@ -36,7 +36,7 @@ services:
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs/redoc.html:/usr/share/nginx/html/api/docs/redoc.html
       - ../docs/openapi-schema.yml:/usr/share/nginx/html/api/docs/openapi-schema.yml
-      - static_value:/var/html/static_backend/
+      - static_value:/var/html/static/
       - media_value:/var/html/media/
     depends_on:
       - frontend
