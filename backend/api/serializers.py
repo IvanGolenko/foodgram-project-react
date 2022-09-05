@@ -1,14 +1,24 @@
 from djoser.serializers import UserCreateSerializer
 from drf_extra_fields.fields import Base64ImageField
-from rest_framework.serializers import (CharField, ImageField, IntegerField,
-                                        ModelSerializer,
-                                        PrimaryKeyRelatedField, ReadOnlyField,
-                                        Serializer, SerializerMetaclass,
-                                        SerializerMethodField, ValidationError)
+from rest_framework.decorators import staticmethod
+from rest_framework.serializers import (
+    Serializer,
+    ModelSerializer,
+    SerializerMethodField,
+    ReadOnlyField,
+    PrimaryKeyRelatedField,
+    ValidationError,
+    IntegerField,
+    ImageField,
+    SerializerMetaclass,
+    CharField
+)
 
 from users.models import Follower, User
-from recipes.models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
-                            ShoppingCart, Tag)
+from recipes.models import (
+    Ingredient, Tag, IngredientInRecipe,
+    Recipe, Favorite, ShoppingCart,
+)
 
 UNIQUE_INGREDIENT_VALIDATION_ERROR = 'Ингредиент уже есть в рецепте'
 NOT_INGREDIENT_VALIDATION_ERROR = 'Ингредиента нет в базе'
@@ -158,7 +168,8 @@ class RecipeSerializerPost(ModelSerializer,
             ingredients_list.append(ingredient_to_check)
         return value
 
-    def create_ingredients(self, ingredients, recipe):
+    @staticmethod
+    def _create_ingredients(ingredients, recipe):
         IngredientInRecipe.objects.bulk_create(
             [
                 IngredientInRecipe(
@@ -170,7 +181,8 @@ class RecipeSerializerPost(ModelSerializer,
             ]
         )
 
-    def create_tags(self, tags, recipe):
+    @staticmethod
+    def _create_tags(tags, recipe):
         recipe.tags.set(tags)
 
     def create(self, validated_data):
