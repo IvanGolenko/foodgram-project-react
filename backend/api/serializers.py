@@ -189,8 +189,8 @@ class RecipeSerializerPost(ModelSerializer,
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredient_recipes')
         recipe = Recipe.objects.create(author=author, **validated_data)
-        self.create_tags(tags, recipe)
-        self.create_ingredients(ingredients, recipe)
+        RecipeSerializerPost._create_tags(tags, recipe)
+        RecipeSerializerPost._create_ingredients(ingredients, recipe)
         recipe.save()
         return recipe
 
@@ -204,10 +204,10 @@ class RecipeSerializerPost(ModelSerializer,
         )
         instance.ingredients.clear()
         ingredients = validated_data.pop('ingredient_recipes')
-        self.create_ingredients(ingredients, instance)
+        RecipeSerializerPost._create_ingredients(ingredients, instance)
         instance.tags.clear()
         tags = validated_data.pop('tags')
-        self.create_tags(tags, instance)
+        RecipeSerializerPost._create_tags(tags, instance)
         return super().update(instance, validated_data)
 
 
