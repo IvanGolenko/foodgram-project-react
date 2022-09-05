@@ -1,6 +1,5 @@
 from djoser.serializers import UserCreateSerializer
 from drf_extra_fields.fields import Base64ImageField
-from rest_framework.decorators import staticmethod
 from rest_framework.serializers import (
     Serializer,
     ModelSerializer,
