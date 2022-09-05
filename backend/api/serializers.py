@@ -19,8 +19,8 @@ from recipes.models import (
     Recipe, Favorite, ShoppingCart,
 )
 
-UNIQUE_INGREDIENT_VALIDATION_ERROR = 'Ингредиент уже есть в рецепте.'
-NOT_INGREDIENT_VALIDATION_ERROR = 'Ингредиента нет в базе.'
+UNIQUE_INGREDIENT_VALIDATION_ERROR = 'Ингредиент уже есть в рецепте'
+NOT_INGREDIENT_VALIDATION_ERROR = 'Ингредиента нет в базе'
 
 
 class UserSerializer(metaclass=SerializerMetaclass):
